@@ -14,38 +14,29 @@ import domain.EmployeeDAO;
  * @author Screencasts
  * 
  */
-public class EmployeeManagementSystem implements ISubject {
+public class EmployeeManagementSystem implements ISubject<Employee> {
 
-	private Employee emp;
-	private String msg= null;
 	private List<IObserver> observers;
 	private List<Employee> employees;
 	private EmployeeDAO employeeDAO;
 
 	public EmployeeManagementSystem() {
-		observers = new ArrayList<IObserver>();
+		observers = new ArrayList<>();
 		employeeDAO = new EmployeeDAO();
 		employees = employeeDAO.generateEmployees();
 	}
 
 	public void modifyEmployeeName(int id, String newName) {
-		boolean notify = false;
-		for (Employee emp : employees) {
-			if (id == emp.employeeID) {
-				emp.setName(newName);
-				this.emp = emp;
-				this.msg = "Employee Name Changed";
-				notify = true;
-			}
-		}
-		if(notify)
-			notifyObservers();
+	    for (Employee employee : employees) {
+	        if (employee.employeeID == id) {
+	            employee.setName(newName);
+                notifyObservers(employee, "Employee Name Changed");
+            }
+        }
 	}
 
 	public void hireNewEmployee(Employee emp) {
-		this.emp = emp;
-		this.msg = "New Hire";
-		notifyObservers();
+		notifyObservers(emp, "New Hire");
 	}
 	
 	@Override
@@ -56,14 +47,13 @@ public class EmployeeManagementSystem implements ISubject {
 
 	@Override
 	public void removeObserver(IObserver removeMe) {
-		int removeIndex = observers.indexOf(removeMe);
-		observers.remove(removeIndex);
+		observers.remove(removeMe);
 	}
 
-
-	public void notifyObservers() {
-		for (IObserver department : observers) {
-			department.callMe(emp, msg);		
-			}
-	}
+    @Override
+    public void notifyObservers(Employee employee, String message) {
+        for (IObserver department : observers) {
+            department.callMe(employee, message);
+        }
+    }
 }
